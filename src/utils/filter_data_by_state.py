@@ -49,13 +49,16 @@ def get_state_database(df_country: pd.DataFrame) -> pd.DataFrame:
     states = df_country['state'].unique()
 
     # Ask the user to choose a state from the list of states
-    print(f"Please choose a state from the list of states:")
+    print(f"Please choose the states, separated by a comma, from the list of states:")
     print(states)
 
-    state = input("Enter the state: ")
+    states = input("Enter the state: ")
 
+    states = states.split(',')
+    states = [s.strip() for s in states]
+    print(states)
     # Filter the dataframe by the chosen state
-    df_filtered = df_country[df_country['state'] == state]
+    df_filtered = df_country[df_country['state'].isin(states)]
 
     return df_filtered
 
@@ -66,10 +69,12 @@ def save_state(df_state: pd.DataFrame) -> None:
 
     country = COUNTRY_PATH.name
 
-    state = df_state['state'].unique()[0]   
+    state = '_'.join(df_state['state'].unique())
+    print(state)
+    #state = df_state['state'].unique()[0]   
 
     # Create a new folder for the chosen state
-    state_path = Path(DATA_PATH / '..' / 'data_filter' / country / state)
+    state_path = Path(DATA_PATH / state)
     if not state_path.exists():
         state_path.mkdir(parents=True)
 

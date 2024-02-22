@@ -14,7 +14,7 @@ base_dir: ""
 
 comet:
   project_name: "ift6759-satbird" #"ecosystem-duck"
-  tags: ["satlas","summer"]
+  tags: ["IFT6759", "SatBird", "California", "summer", "satlas", "RGB"]
   experiment_name: "SatBird_California_Satlas_RGB" # specify for training, or use to report test results, TODO: also use to resume training
   experiment_key: "" # use to report test results,
 
@@ -96,7 +96,7 @@ data:
       res: 1000
 
   files:
-    base: "/home/fidaa/Documents/Github/SatBird/data_filter/USA_summer/California"
+    base: "/home/fidaa/Documents/Github/SatBird/data/California"
     train: "train_split.csv"
     val: "valid_split.csv"
     test: "test_split.csv"

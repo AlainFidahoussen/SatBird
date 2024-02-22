@@ -1,6 +1,7 @@
 """
 general trainer: supports training Resnet18, Satlas, and SATMAE
 """
+from functools import partial
 import os
 import pickle
 from typing import Any, Dict, Optional
@@ -103,9 +104,12 @@ class EbirdTask(pl.LightningModule):
                 param.requires_grad = False
             self.model = nn.Linear(in_feat, self.target_size)
 
-        elif self.opts.experiment.module.model == "resnet18":
+        elif (self.opts.experiment.module.model == "resnet18") or (self.opts.experiment.module.model == "resnet50"):
 
-            self.model = models.resnet18(pretrained=self.opts.experiment.module.pretrained)
+            if self.opts.experiment.module.model == "resnet50":
+                self.model = models.resnet50(pretrained=self.opts.experiment.module.pretrained)
+            else:
+                self.model = models.resnet18(pretrained=self.opts.experiment.module.pretrained)
 
             if self.opts.experiment.module.transfer_weights == "SECO":
                 # this works for https://zenodo.org/record/4728033/files/seco_resnet18_1m.ckpt?download=1
@@ -161,8 +165,67 @@ class EbirdTask(pl.LightningModule):
                     for param in self.model.parameters():
                         param.requires_grad = False
 
-            self.model.fc = nn.Linear(512, self.target_size)
+            if self.opts.experiment.module.model == "resnet50":
+                self.model.fc = nn.Linear(2048, self.target_size)
+            else:
+                self.model.fc = nn.Linear(512, self.target_size)
 
+        elif 'convnext' in self.opts.experiment.module.model:
+
+
+            if self.opts.experiment.module.model == "convnext_tiny":
+                self.model = models.convnext_tiny(pretrained=self.opts.experiment.module.pretrained)
+            elif self.opts.experiment.module.model == "convnext_small":
+                self.model = models.convnext_small(pretrained=self.opts.experiment.module.pretrained)
+            elif self.opts.experiment.module.model == "convnext_base":
+                self.model = models.convnext_base(pretrained=self.opts.experiment.module.pretrained)
+            elif self.opts.experiment.module.model == "convnext_large":
+                self.model = models.convnext_large(pretrained=self.opts.experiment.module.pretrained)
+
+
+            if len(self.opts.data.bands) != 3 or len(self.opts.data.env) > 0:
+                self.bands = self.opts.data.bands + self.opts.data.env
+                orig_channels = self.model.conv1.in_channels
+                weights = self.model.conv1.weight.data.clone()
+                self.model.conv1 = nn.Conv2d(get_nb_bands(self.bands), 64, kernel_size=(7, 7), stride=(2, 2),
+                                             padding=(3, 3), bias=False, )
+                # assume first three channels are rgb
+                if self.opts.experiment.module.pretrained:
+                    # self.model.conv1.weight.data[:, :orig_channels, :, :] = weights
+                    self.model.conv1.weight.data = init_first_layer_weights(get_nb_bands(self.bands), weights)
+
+            if self.opts.experiment.module.transfer_weights == "USA":
+
+                # this is used for transferring USA weights to Kenya
+                print("Transferring USA weights")
+
+                ckpt = torch.load(self.opts.experiment.module.resume)
+                self.model.fc = nn.Sequential()
+                loaded_dict = ckpt['state_dict']
+                model_dict = self.model.state_dict()
+
+                # load state dict keys
+                for key_model, key_pretrained in zip(model_dict.keys(), loaded_dict.keys()):
+                    # ignore first layer weights(use imagenet ones)
+                    if key_model == 'conv1.weight':
+                        continue
+                    model_dict[key_model] = loaded_dict[key_pretrained]
+
+                self.model.load_state_dict(model_dict)
+
+                if self.freeze_backbone:
+                    print("initialized network, freezing weights")
+                    for param in self.model.parameters():
+                        param.requires_grad = False
+
+            if self.opts.experiment.module.model == "convnext_tiny":
+                self.model.classifier[-1] = nn.Linear(768, self.target_size)
+            elif self.opts.experiment.module.model == "convnext_small":
+                self.model.classifier[-1] = nn.Linear(1024, self.target_size)
+            elif self.opts.experiment.module.model == "convnext_base":
+                self.model.classifier[-1] = nn.Linear(1280, self.target_size)
+            elif self.opts.experiment.module.model == "convnext_large":
+                self.model.classifier[-1] = nn.Linear(1536, self.target_size)
 
         else:
             raise ValueError(f"Model type '{self.opts.experiment.module.model}' is not valid")

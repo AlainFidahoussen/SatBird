@@ -17,6 +17,8 @@ from src.utils.config_utils import load_opts
 import src.trainer.trainer as general_trainer
 from src.utils.compute_normalization_stats import *
 
+from dotenv import load_dotenv
+load_dotenv()  # take environment variables from .env.
 
 @hydra.main(config_path="configs", config_name="hydra")
 def main(opts):

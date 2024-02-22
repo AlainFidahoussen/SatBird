@@ -1,8 +1,8 @@
 #where to save checkpoints
-save_path: "SatBird_California_Resnet18_RGB_ENV"
+save_path: "SatBird_California_Resnet18_RGBNIR_ENV"
 
 # load existing checkpoint for inference. If passing experiment folder instead (for multiple seeds), it will evaluate all of them.
-load_ckpt_path: "SatBird_California_Resnet18_RGB_ENV"
+load_ckpt_path: "SatBird_California_Resnet18_RGBNIR_ENV"
 save_preds_path: "" #"/network/scratch/h/hager.radi/ecosystem-embedding/baseline_resnet18_RGBNIR_ENV/preds_path"
 log_comet: true
 
@@ -20,8 +20,8 @@ loc:
 
 comet:
   project_name: "ift6759-satbird"
-  tags: ["resnet18", "RGB_ENV", "corrected_targets", "EnvNormalization"]
-  experiment_name: "SatBird_California_Resnet18_RGB_ENV" # specify for training, or use to report test results, TODO: also use to resume training
+  tags: ["IFT6759", "SatBird", "California", "summer", "resnet18", "RGBNIR_ENV"]
+  experiment_name: "SatBird_California_Resnet18_RGBNIR_ENV" # specify for training, or use to report test results, TODO: also use to resume training
   experiment_key: "" # use to report test results,
 
 experiment:
@@ -86,10 +86,10 @@ data:
     batch_size: 128
   #What kind of satellite input ? "refl" for "raw" reflectance values or 
   #"img" for 0-255 values (only supported for "rgb" and "nir" bands)
-  datatype: "img"
+  datatype: "refl"
   multiscale : [64]
   
-  bands: ["rgb"]  #any subset of ["r", "g", "b", "nir"] if working with "refl" data or ["rgb", "nir"] if using "img"
+  bands: ["r","g","b", "nir"]  #any subset of ["r", "g", "b", "nir"] if working with "refl" data or ["rgb", "nir"] if using "img" 
   
   res: 10 #resolution of the images
 
@@ -106,7 +106,7 @@ data:
       res: 1000
   
   files:
-    base: "/home/fidaa/Documents/Github/SatBird/data_filter/USA_summer/California"
+    base: "/home/fidaa/Documents/Github/SatBird/data/California"
     train: "train_split.csv"
     val: "valid_split.csv"
     test: "test_split.csv"
@@ -160,7 +160,7 @@ data:
       ignore: False
       maxchan: false
       subset: ["sat"]
-      custom: [*visual_means, *visual_stds]
+      custom: [*rgbnir_means, *rgbnir_std]
 
     - name: normalize
       normalize_by_255: False

@@ -1,8 +1,8 @@
 #where to save checkpoints
-save_path: "baseline_satmae_RGB"
+save_path: "SatBird_USA_summer_Satmae_RGB"
 
 # load existing checkpoint for inference. If passing experiment folder instead (for multiple seeds), it will evaluate all of them.
-load_ckpt_path: "baseline_satmae_RGB"
+load_ckpt_path: "SatBird_USA_summer_Satmae_RGB"
 save_preds_path: ""
 log_comet: true
 
@@ -13,9 +13,9 @@ max_epochs: 50
 base_dir: ""
 
 comet:
-  project_name: "camera_baselines" #"ecosystem-duck"
-  tags: ["satmae","summer"]
-  experiment_name: "baseline_satmae_RGB" # specify for training, or use to report test results, TODO: also use to resume training
+  project_name: "ift6759-satbird" #"ecosystem-duck"
+  tags: ["IFT6759", "RGB", "SatBird", "USA", "satmae", "summer"]
+  experiment_name: "SatBird_USA_summer_Satmae_RGB" # specify for training, or use to report test results, TODO: also use to resume training
   experiment_key: "" # use to report test results,
 
 experiment:
@@ -28,7 +28,7 @@ experiment:
     #use pretrained weights ( torchvision )
     pretrained: True
     # resume training from another model (transfer learning), set empty if training from scratch
-    resume: '/network/projects/ecosystem-embeddings/trainer_utils/pretrained_weights/fmow_pretrain.pth'
+    resume: '/home/fidaa/Documents/Github/SatBird/pretrained_weights/fmow_pretrain.pth'
     # freeze backbone when transfer learning or not
     freeze: False
     #initializes biases of the output layer sothat sigmoid(bias) = mean over the training set for each species

@@ -1,8 +1,8 @@
 #where to save checkpoints
-save_path: "SatBirdv2_camera_ready_baseline_resnet18_RGBNIR"
+save_path: "SatBird_USA_summer_resnet18_RGBNIR"
 
 # load existing checkpoint for inference. If passing experiment folder instead (for multiple seeds), it will evaluate all of them.
-load_ckpt_path: "SatBirdv2_camera_ready_baseline_resnet18_RGBNIR"
+load_ckpt_path: "SatBird_USA_summer_resnet18_RGBNIR"
 save_preds_path: ""
 log_comet: true
 
@@ -19,9 +19,9 @@ loc:
   concat: True
 
 comet:
-  project_name: "camera_ready_neurips_baselines" #"ecosystem-duck"
-  tags: ["resnet18", "RGBNIR", "corrected_targets", "SatBirdv2"]
-  experiment_name: "SatBirdv2_camera_ready_baseline_resnet18_RGBNIR" # specify for training, or use to report test results, TODO: also use to resume training
+  project_name: "ift6759-satbird" #"ecosystem-duck"
+  tags: ["IFT6759", "RGBNIR", "SatBird", "USA", "resnet18", "summer"]
+  experiment_name: "SatBird_USA_summer_resnet18_RGBNIR" # specify for training, or use to report test results, TODO: also use to resume training
   experiment_key: "" # use to report test results,
 
 experiment:
@@ -99,7 +99,7 @@ data:
       res: 1000
   
   files:
-    base: "/network/projects/ecosystem-embeddings/SatBird_data_v2/USA_summer"
+    base: "/home/fidaa/Documents/Github/SatBird/data/USA_summer"
     train: "train_split.csv"
     val: "valid_split.csv"
     test: "test_split.csv"

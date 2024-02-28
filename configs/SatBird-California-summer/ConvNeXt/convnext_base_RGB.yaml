@@ -83,7 +83,7 @@ data:
   datatype: "img"
   multiscale : [64]
   
-  bands: ['r', 'g', 'b']  #any subset of ["r", "g", "b", "nir"] if working with "refl" data or ["rgb", "nir"] if using "img"
+  bands: ['rgb']  #any subset of ["r", "g", "b", "nir"] if working with "refl" data or ["rgb", "nir"] if using "img"
   
   res: 10 #resolution of the images
 

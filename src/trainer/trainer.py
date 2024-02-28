@@ -172,7 +172,7 @@ class EbirdTask(pl.LightningModule):
 
         elif 'convnext' in self.opts.experiment.module.model:
 
-
+            # ConvNext models
             if self.opts.experiment.module.model == "convnext_tiny":
                 self.model = models.convnext_tiny(pretrained=self.opts.experiment.module.pretrained)
             elif self.opts.experiment.module.model == "convnext_small":
@@ -183,50 +183,30 @@ class EbirdTask(pl.LightningModule):
                 self.model = models.convnext_large(pretrained=self.opts.experiment.module.pretrained)
 
 
+            # Replace the first layer with a new one, that has the right number of input features
             if len(self.opts.data.bands) != 3 or len(self.opts.data.env) > 0:
                 self.bands = self.opts.data.bands + self.opts.data.env
-                orig_channels = self.model.conv1.in_channels
-                weights = self.model.conv1.weight.data.clone()
-                self.model.conv1 = nn.Conv2d(get_nb_bands(self.bands), 64, kernel_size=(7, 7), stride=(2, 2),
-                                             padding=(3, 3), bias=False, )
+
+                in_channels = self.model.features[0][0].in_channels
+                out_channels = self.model.features[0][0].out_channels
+                kernel_size = self.model.features[0][0].kernel_size
+                stride = self.model.features[0][0].stride
+
+                weights = self.model.features[0][0].weight.data.clone()
+                self.model.features[0][0] = nn.Conv2d(
+                    in_channels=get_nb_bands(self.bands), 
+                    out_channels=out_channels,
+                    kernel_size=kernel_size,
+                    stride=stride)
+
                 # assume first three channels are rgb
                 if self.opts.experiment.module.pretrained:
                     # self.model.conv1.weight.data[:, :orig_channels, :, :] = weights
-                    self.model.conv1.weight.data = init_first_layer_weights(get_nb_bands(self.bands), weights)
+                    self.model.features[0][0].weight.data = init_first_layer_weights(get_nb_bands(self.bands), weights)
 
-            if self.opts.experiment.module.transfer_weights == "USA":
-
-                # this is used for transferring USA weights to Kenya
-                print("Transferring USA weights")
-
-                ckpt = torch.load(self.opts.experiment.module.resume)
-                self.model.fc = nn.Sequential()
-                loaded_dict = ckpt['state_dict']
-                model_dict = self.model.state_dict()
-
-                # load state dict keys
-                for key_model, key_pretrained in zip(model_dict.keys(), loaded_dict.keys()):
-                    # ignore first layer weights(use imagenet ones)
-                    if key_model == 'conv1.weight':
-                        continue
-                    model_dict[key_model] = loaded_dict[key_pretrained]
-
-                self.model.load_state_dict(model_dict)
-
-                if self.freeze_backbone:
-                    print("initialized network, freezing weights")
-                    for param in self.model.parameters():
-                        param.requires_grad = False
-
-            if self.opts.experiment.module.model == "convnext_tiny":
-                self.model.classifier[-1] = nn.Linear(768, self.target_size)
-            elif self.opts.experiment.module.model == "convnext_small":
-                self.model.classifier[-1] = nn.Linear(1024, self.target_size)
-            elif self.opts.experiment.module.model == "convnext_base":
-                self.model.classifier[-1] = nn.Linear(1280, self.target_size)
-            elif self.opts.experiment.module.model == "convnext_large":
-                self.model.classifier[-1] = nn.Linear(1536, self.target_size)
-
+            # Replace the classifier with a new one, that has the right number of output features
+            in_features = self.model.classifier[-1].in_features
+            self.model.classifier[-1] = nn.Linear(in_features, self.target_size)
         else:
             raise ValueError(f"Model type '{self.opts.experiment.module.model}' is not valid")
 

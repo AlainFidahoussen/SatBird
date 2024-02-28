@@ -4,7 +4,7 @@ save_path: "SatBird_California_ConvNext_Tiny_RGB"
 # load existing checkpoint for inference. If passing experiment folder instead (for multiple seeds), it will evaluate all of them.
 load_ckpt_path: "SatBird_California_ConvNext_Tiny_RGB"
 save_preds_path: ""
-log_comet: true
+log_comet: false
 
 overfit_batches: 0.0
 # maximum number of epochs to train for
@@ -83,7 +83,7 @@ data:
   datatype: "img"
   multiscale : [64]
   
-  bands: ['r', 'g', 'b']  #any subset of ["r", "g", "b", "nir"] if working with "refl" data or ["rgb", "nir"] if using "img"
+  bands: ['rgb']  #any subset of ["r", "g", "b", "nir"] if working with "refl" data or ["rgb", "nir"] if using "img"
   
   res: 10 #resolution of the images
 

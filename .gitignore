@@ -8,3 +8,8 @@ outputs/*
 2676/*
 job_*
 checkpoints*
+data/*
+.env
+pretrained_weights/*
+SatBird_*
+Results/*

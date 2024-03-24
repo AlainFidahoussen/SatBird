@@ -1,8 +1,8 @@
 #where to save checkpoints
-save_path: "SatBird_California_Resnet18_RGBNIR_ENV_ALT"
+save_path: "SatBird_California_Resnet18_RGB_ENV_ALT"
 
 # load existing checkpoint for inference. If passing experiment folder instead (for multiple seeds), it will evaluate all of them.
-load_ckpt_path: "SatBird_California_Resnet18_RGBNIR_ENV_ALT"
+load_ckpt_path: "SatBird_California_Resnet18_RGB_ENV_ALT"
 save_preds_path: "" #"/network/scratch/h/hager.radi/ecosystem-embedding/baseline_resnet18_RGBNIR_ENV/preds_path"
 log_comet: true
 
@@ -20,8 +20,8 @@ loc:
 
 comet:
   project_name: "ift6759-satbird"
-  tags: ["IFT6759", "SatBird", "California", "summer", "resnet18", "Altitude", "RGBNIR_ENV_ALT"]
-  experiment_name: "SatBird_California_Resnet18_RGBNIR_ENV_ALT" # specify for training, or use to report test results, TODO: also use to resume training
+  tags: ["IFT6759", "SatBird", "California", "summer", "resnet18", "Altitude", "RGB_ENV_ALT"]
+  experiment_name: "SatBird_California_Resnet18_RGB_ENV_ALT" # specify for training, or use to report test results, TODO: also use to resume training
   experiment_key: "" # use to report test results,
 
 experiment:
@@ -86,16 +86,16 @@ data:
     batch_size: 128
   #What kind of satellite input ? "refl" for "raw" reflectance values or 
   #"img" for 0-255 values (only supported for "rgb" and "nir" bands)
-  datatype: "refl"
+  datatype: "img"
   multiscale : [64]
   
-  bands: ["r","g","b", "nir"]  #any subset of ["r", "g", "b", "nir"] if working with "refl" data or ["rgb", "nir"] if using "img" 
+  bands: ["rgb"]  #any subset of ["r", "g", "b", "nir"] if working with "refl" data or ["rgb", "nir"] if using "img"
   
   res: 10 #resolution of the images
 
   #o you want to use environmental data (pedological and bioclimatic (low res) data) #ped" or "bioclim" or both or empty list
   env: ["bioclim", "ped"]
-  env_var_sizes: [19, 8]
+  env_var_sizes: [19, 9]
   
   #resolution of pedological and bioclimatic data in meters
   ped: 
@@ -107,12 +107,12 @@ data:
   
   files:
     base: "/home/fidaa/Documents/Github/SatBird/data/California"
-    train: "train_split.csv"
-    val: "valid_split.csv"
-    test: "test_split.csv"
+    train: "train_alt_split.csv"
+    val: "valid_alt_split.csv"
+    test: "test_alt_split.csv"
 
     targets_folder: "targets"
-    env_data_folder: "environmental"
+    env_data_folder: "environmental_altitude"
     images_folder: "images"
     correction_thresh: "range_maps.pkl" # range maps - threshold = False
 
@@ -122,8 +122,8 @@ data:
     rgb_means: "stats/means_images_visual.npy"
     rgb_stds: "stats/stds_images_visual.npy"
 
-    env_means: "stats/env_means.npy"
-    env_stds: "stats/env_stds.npy"
+    env_means: "stats/env_alt_means.npy"
+    env_stds: "stats/env_alt_stds.npy"
 
   correction_factor:
      thresh:  # to train with RM
@@ -160,7 +160,7 @@ data:
       ignore: False
       maxchan: false
       subset: ["sat"]
-      custom: [*rgbnir_means, *rgbnir_std]
+      custom: [*visual_means, *visual_stds]
 
     - name: normalize
       normalize_by_255: False

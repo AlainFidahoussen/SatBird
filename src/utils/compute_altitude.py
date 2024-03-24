@@ -11,6 +11,7 @@ import requests
 def get_altitude(longitude: float, latitude: float) -> float:
 
     addr = 'https://api.opentopodata.org/v1/mapzen'
+    # addr = 'http://localhost:5000/v1/test-dataset'
     r = requests.get(f'{addr}?locations={latitude},{longitude}')
     r = r.json()
 

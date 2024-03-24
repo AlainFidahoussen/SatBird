@@ -115,7 +115,7 @@ def get_nb_bands(bands):
         if b in ["r", "g", "b", "nir", "landuse"]:
             n += 1
         elif b == "ped":
-            n += 8
+            n += 9
         elif b == "bioclim":
             n += 19
         elif b == "rgb":

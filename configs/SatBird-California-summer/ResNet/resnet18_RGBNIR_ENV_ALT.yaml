@@ -95,7 +95,7 @@ data:
 
   #o you want to use environmental data (pedological and bioclimatic (low res) data) #ped" or "bioclim" or both or empty list
   env: ["bioclim", "ped"]
-  env_var_sizes: [19, 8]
+  env_var_sizes: [19, 9]
   
   #resolution of pedological and bioclimatic data in meters
   ped: 
@@ -107,12 +107,12 @@ data:
   
   files:
     base: "/home/fidaa/Documents/Github/SatBird/data/California"
-    train: "train_split.csv"
-    val: "valid_split.csv"
-    test: "test_split.csv"
+    train: "train_alt_split.csv"
+    val: "valid_alt_split.csv"
+    test: "test_alt_split.csv"
 
     targets_folder: "targets"
-    env_data_folder: "environmental"
+    env_data_folder: "environmental_altitude"
     images_folder: "images"
     correction_thresh: "range_maps.pkl" # range maps - threshold = False
 
@@ -122,8 +122,8 @@ data:
     rgb_means: "stats/means_images_visual.npy"
     rgb_stds: "stats/stds_images_visual.npy"
 
-    env_means: "stats/env_means.npy"
-    env_stds: "stats/env_stds.npy"
+    env_means: "stats/env_alt_means.npy"
+    env_stds: "stats/env_alt_stds.npy"
 
   correction_factor:
      thresh:  # to train with RM

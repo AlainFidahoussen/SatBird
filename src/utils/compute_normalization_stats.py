@@ -148,6 +148,8 @@ def compute_means_stds_env_vars(root_dir, train_csv, env, env_data_folder="envir
                                 'bio_18', 'bio_19']
     ped_env_column_names = ['bdticm', 'bldfie', 'cecsol', 'clyppt', 'orcdrc', 'phihox', 'sltppt', 'sndppt']
 
+    geo_env_column_name = ['alt']
+
     df = pd.read_csv(os.path.join(root_dir, train_csv))
 
     env_var_names = []
@@ -155,6 +157,8 @@ def compute_means_stds_env_vars(root_dir, train_csv, env, env_data_folder="envir
         env_var_names += bioclim_env_column_names
     if "ped" in env:
         env_var_names += ped_env_column_names
+    if "geo" in env:
+        env_var_names += geo_env_column_name
 
     output_file_means_path = os.path.join(root_dir, output_file_means)
     if os.path.exists(output_file_means_path):
@@ -166,7 +170,8 @@ def compute_means_stds_env_vars(root_dir, train_csv, env, env_data_folder="envir
             arr = np.load(os.path.join(root_dir, env_data_folder, f"{hs}.npy"))
             per_raster_mean = np.nanmean(arr, axis=(1, 2))
             new_row = pd.Series(per_raster_mean, index=stats_df.columns)
-            stats_df = stats_df.append(new_row, ignore_index=True)
+            # stats_df = stats_df.append(new_row, ignore_index=True)
+            stats_df = pd.concat([stats_df, pd.DataFrame([new_row])], ignore_index=True)
 
         means_to_save = []
         for env_var in env_var_names:
@@ -188,7 +193,9 @@ def compute_means_stds_env_vars(root_dir, train_csv, env, env_data_folder="envir
             std = np.nansum(((arr - means[:, np.newaxis, np.newaxis]) ** 2) / (50 * 50), axis=-1)
             std = np.nansum(std, axis=-1)
             new_row = pd.Series(std, index=stats_df.columns)
-            stats_df = stats_df.append(new_row, ignore_index=True)
+            # stats_df = stats_df.append(new_row, ignore_index=True)
+            stats_df = pd.concat([stats_df, pd.DataFrame([new_row])], ignore_index=True)
+
         stds_to_save = []
         for env_var in env_var_names:
             stds_to_save.append(np.sqrt((stats_df[env_var]).mean()))

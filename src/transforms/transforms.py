@@ -14,7 +14,7 @@ import random
 Module.__module__ = "torch.nn"
 
 sat = ["sat"]
-env = ["bioclim", "ped"]
+env = ["bioclim", "ped", "geo"]
 landuse = ["landuse"]
 all_data = sat + env + landuse
 
@@ -157,8 +157,18 @@ class MatchRes:
             left = max(0, Wb // 2 - w // 2)
             h, w = max(ceil(h), 1), max(ceil(w), 1)
             sample["ped"] = sample["ped"][:, int(top): int(top + h), int(left): int(left + w)]
+        if "geo" in list(sample.keys()):
+            # align bioclim with ped
+            Hb, Wb = sample["geo"].shape[-2:]
+            # print(Hb,Wb)
+            h = floor(Hb * self.sat_res / self.ped_res)
+            w = floor(Wb * self.sat_res / self.ped_res)
+            top = max(0, Hb // 2 - h // 2)
+            left = max(0, Wb // 2 - w // 2)
+            h, w = max(ceil(h), 1), max(ceil(w), 1)
+            sample["geo"] = sample["geo"][:, int(top): int(top + h), int(left): int(left + w)]
 
-        means_bioclim, means_ped = self.custom
+        means_bioclim, means_ped, means_geo = self.custom
 
         for elem in list(sample.keys()):
             if elem in env:
@@ -167,6 +177,9 @@ class MatchRes:
                         sample[elem] = torch.Tensor(means_bioclim).unsqueeze(-1).unsqueeze(-1)
                     elif elem == "ped":
                         sample[elem] = torch.Tensor(means_ped).unsqueeze(-1).unsqueeze(-1)
+                    elif elem == "geo":
+                        sample[elem] = torch.Tensor(means_geo).unsqueeze(-1).unsqueeze(-1)
+                        
 
                 sample[elem] = F.interpolate(sample[elem].unsqueeze(0).float(), size=(H, W))
         return sample
@@ -420,8 +433,10 @@ def get_transforms(opts, mode):
                 t.custom = opts.variables.bioclim_means, opts.variables.bioclim_std
             elif t.subset == ["ped"]:
                 t.custom = opts.variables.ped_means, opts.variables.ped_std
+            elif t.subset == ["geo"]:
+                t.custom = opts.variables.geo_means, opts.variables.geo_std
         if t.name == "matchres":
-            t.custom_means = opts.variables.bioclim_means, opts.variables.ped_means
+            t.custom_means = opts.variables.bioclim_means, opts.variables.ped_means, opts.variables.geo_means
 
         # account for multires
         if t.name == 'crop' and len(opts.data.multiscale) > 1:

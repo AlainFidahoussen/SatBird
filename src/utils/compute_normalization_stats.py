@@ -204,6 +204,22 @@ def compute_means_stds_env_vars(root_dir, train_csv, env, env_data_folder="envir
         np.save(output_file_stds_path, stds)
 
     print("Env var stds: ", stds)
-    return means[0:len(bioclim_env_column_names)].tolist(), stds[0:len(bioclim_env_column_names)].tolist(), means[
-                                                                                                            len(bioclim_env_column_names):].tolist(), stds[
-                                                                                                                                                      len(bioclim_env_column_names):].tolist()
+
+    bioclim_start = 0
+    bioclim_end = len(bioclim_env_column_names)
+    
+    ped_start = bioclim_end
+    ped_end = bioclim_end + len(ped_env_column_names)
+    
+    geo_start = ped_end
+    geo_end = ped_end + len(geo_env_column_name)
+
+
+    print(means[bioclim_start:bioclim_end].shape, stds[bioclim_start:bioclim_end].shape)
+    print(means[ped_start:ped_end].shape, stds[ped_start:ped_end].shape)
+    print(means[geo_start:geo_end].shape, stds[geo_start:geo_end].shape)
+    print('**********')
+
+    return means[bioclim_start:bioclim_end].tolist(), stds[bioclim_start:bioclim_end].tolist(), \
+           means[ped_start:ped_end].tolist(), stds[ped_start:ped_end].tolist(), \
+           means[geo_start:geo_end].tolist(), stds[geo_start:geo_end].tolist()           

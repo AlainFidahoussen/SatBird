@@ -8,3 +8,10 @@ outputs/*
 2676/*
 job_*
 checkpoints*
+Results*
+data*
+documents*
+pretrained_weights*
+SatBird_*
+.python-version
+.env
